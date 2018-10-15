@@ -14,20 +14,13 @@ class Blog(db.Model):
     title = db.Column(db.String(120))
     body =  db.Column(db.String(1200))
 
-    def __init__(self, name, body):
-        self.name = name
+    def __init__(self, title, body):
+        self.title = title
         self.body = body
 
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
-
-    if request.method == 'POST':
-        new_title = request.form['title']
-        new_body = request.form['body']
-        new_blog = Blog(new_title, new_body)
-        db.session.add(new_blog)
-        db.session.commit()
 
     blogs = Blog.query.all()
     # completed_tasks = Task.query.filter_by(completed=True).all()
@@ -35,29 +28,42 @@ def index():
         blogs=blogs)
 
 
-@app.route('/blog', methods=['POST'])
+@app.route('/blog/')
 def blog():
 
-    blog_id = int(request.form['blog-id'])
+    blog_id = request.args.get('id')
+    # blog_id = Blog.query.get(blog.id)
     blog = Blog.query.get(blog_id)
-    title = Blog.query.get('title')
-    body = Blog.query.get('body')    
+    title = blog.title
+    body = blog.body
+    return render_template('blog_entry.html', title=title, body=body)
+    
+    # new_blog = Blog(new_title, new_body)
+    # return render_template('single_entry.html', title="Blog Entry", entry=entry)   
 
     # task.completed = True
-    db.session.add(blog)
-    db.session.commit()
+    # db.session.add(blog)
+    # db.session.commit()
 
-    return redirect('/')
+    # return redirect('/')
 
-@app.route('/newpost', methods=['POST'])
+@app.route('/newpost/', methods=['GET', 'POST'])
 def new_post():
+    
+    if request.method == 'POST':
+        new_title = request.form['title']
+        new_body = request.form['body']
+        new_blog = Blog(new_title, new_body)
+ 
+        db.session.add(new_blog)
+        db.session.commit()
+       
+        url = "/blog?id=" + str(new_blog.id)
+        return redirect(url)
+        # return render_template('blog_entry.html', title=blog.title, body=blog.body)
 
-    # task.completed = True
-    db.session.add(blog)
-    db.session.commit()
-
-    return redirect('/')
-
+    else:
+        return render_template('newpost.html', title="Build a Blog!")
 
 if __name__ == '__main__':
-    app.run(port=5001)
+    app.run(debug=True)

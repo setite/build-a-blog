@@ -1,19 +1,19 @@
-{% extends "base.html" %}
 
 {% block content %}
     <h1>Add a Blog Entry</h1>
-    <form method='post'>
-        <label>
-            Title for your new Blog:
-            <input type="text" name='title' />
-        </label>
-        <label>
-            Your New Blog:
-            <input type="text" name='blog_content' />
-        </label>
+    <form action="/newpost" method='post'>
+    <!-- <form method='post'> -->
+    <div>
+        <label for="title">Title for your new Blog:</label>
+        <br>
+        <input type="text" name='title' />
+    </div>
+    <div>
+        <label for="body">Your New Blog:</label>
+        <br>
+        <textarea rows="5" cols="50" name='body' ></textarea>
+    </div>
         <input type="submit" value='Post Blog' />
     </form>
-
-    <hr />
 
 {% endblock %}

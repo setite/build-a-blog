@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, redirect, render_template, flash
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -6,6 +6,7 @@ app.config['DEBUG'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://build-a-blog:root@localhost:8889/build-a-blog'
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
+app.secret_key = 'y337kGcys&zP3B'
 
 
 class Blog(db.Model):
@@ -18,6 +19,12 @@ class Blog(db.Model):
         self.title = title
         self.body = body
 
+    def is_valid(self):
+
+        if self.title and self.body:
+            return True
+        else:
+            return False
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -52,15 +59,20 @@ def new_post():
         new_body = request.form['body']
         new_blog = Blog(new_title, new_body)
  
-        db.session.add(new_blog)
-        db.session.commit()
+        if new_blog.is_valid():
+            db.session.add(new_blog)
+            db.session.commit()
        
-        url = "/blog?id=" + str(new_blog.id)
-        return redirect(url)
-        # return render_template('blog_entry.html', title=new_blog.title, body=new_blog.body)
+            # url = "/blog?id=" + str(new_blog.id)
+            # return redirect(url)
+            return redirect("/blog?id=" + str(new_blog.id))
+            # return render_template('blog_entry.html', title=new_blog.title, body=new_blog.body)
+        else:
+            flash("You must include a title and body for all new blog posts.")
+            return render_template('newpost.html', title="Make a New Blog Post")
 
     else:
-        return render_template('newpost.html', title="Build a Blog!")
+        return render_template('newpost.html', title="Make a New Blog Post")
 
 if __name__ == '__main__':
     app.run(debug=True)
